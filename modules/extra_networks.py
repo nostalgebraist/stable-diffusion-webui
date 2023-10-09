@@ -196,7 +196,11 @@ def parse_prompts(prompts):
     extra_data = None
 
     for prompt in prompts:
-        updated_prompt, parsed_extra_data = parse_prompt(prompt)
+        print(f"trying to parse: {repr(prompt)}")
+        if isinstance(prompt, list):
+            updated_prompt, parsed_extra_data = parse_prompts(prompt)
+        else:
+            updated_prompt, parsed_extra_data = parse_prompt(prompt)
 
         if extra_data is None:
             extra_data = parsed_extra_data
