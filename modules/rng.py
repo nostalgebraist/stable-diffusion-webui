@@ -109,16 +109,21 @@ class ImageRNG:
 
         self.is_first = True
 
+        print(f"ImageRNG: shape {shape}, seeds {seeds}, subseeds {subseeds}, subseed_strength {subseed_strength}, seed_resize_from_h {seed_resize_from_h}, seed_resize_from_w {seed_resize_from_w}")
+
     def first(self):
         noise_shape = self.shape if self.seed_resize_from_h <= 0 or self.seed_resize_from_w <= 0 else (self.shape[0], self.seed_resize_from_h // 8, self.seed_resize_from_w // 8)
 
         xs = []
+
+        print(f"ImageRNG: first: noise_shape {noise_shape}, self.shape {self.shape}")
 
         for i, (seed, generator) in enumerate(zip(self.seeds, self.generators)):
             subnoise = None
             if self.subseeds is not None and self.subseed_strength != 0:
                 subseed = 0 if i >= len(self.subseeds) else self.subseeds[i]
                 subnoise = randn(subseed, noise_shape)
+                print(f"ImageRNG: first: subseed {subseed}, subnoise.shape {subnoise.shape}")
 
             if noise_shape != self.shape:
                 noise = randn(seed, noise_shape)
@@ -140,6 +145,7 @@ class ImageRNG:
                 dy = max(-dy, 0)
 
                 x[:, ty:ty + h, tx:tx + w] = noise[:, dy:dy + h, dx:dx + w]
+                print(f"ImageRNG: first: x.shape {x.shape}, noise.shape {noise.shape}, dx {dx}, dy {dy}, tx {tx}, ty {ty}, w {w}, h {h}")
                 noise = x
 
             xs.append(noise)
@@ -157,6 +163,7 @@ class ImageRNG:
 
         xs = []
         for generator in self.generators:
+            print(f"ImageRNG: next: self.shape {self.shape}, generator {generator}"")
             x = randn_without_seed(self.shape, generator=generator)
             xs.append(x)
 
