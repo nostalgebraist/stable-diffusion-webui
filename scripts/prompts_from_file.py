@@ -139,7 +139,7 @@ class Script(scripts.Script):
                     errors.report(f"Error parsing line {line} as commandline", exc_info=True)
                     args = {"prompt": line}
             else:
-                prompts.append(prompts)
+                prompts.append(line)
 
         for pix in range(0, len(prompts), p.batch_size):
             args = {"prompt": prompts[pix : pix + p.batch_size]}
