@@ -168,7 +168,7 @@ class ImageRNG:
 
         xs = []
         for generator in self.generators:
-            print(f"ImageRNG: next: self.shape {self.shape}, generator {generator}")
+            # print(f"ImageRNG: next: self.shape {self.shape}, generator {generator}")
             x = randn_without_seed(self.shape, generator=generator)
             xs.append(x)
 
