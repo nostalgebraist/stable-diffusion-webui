@@ -109,7 +109,12 @@ class ImageRNG:
 
         self.is_first = True
 
-        print(f"ImageRNG: shape {shape}, seeds {seeds}, subseeds {subseeds}, subseed_strength {subseed_strength}, seed_resize_from_h {seed_resize_from_h}, seed_resize_from_w {seed_resize_from_w}")
+        print(
+            (
+                f"ImageRNG: shape {shape}, seeds {seeds}, subseeds {subseeds}, subseed_strength {subseed_strength}, ",
+                f"seed_resize_from_h {seed_resize_from_h}, seed_resize_from_w {seed_resize_from_w}"
+            )
+        )
 
     def first(self):
         noise_shape = self.shape if self.seed_resize_from_h <= 0 or self.seed_resize_from_w <= 0 else (self.shape[0], self.seed_resize_from_h // 8, self.seed_resize_from_w // 8)
@@ -163,7 +168,7 @@ class ImageRNG:
 
         xs = []
         for generator in self.generators:
-            print(f"ImageRNG: next: self.shape {self.shape}, generator {generator}"")
+            print(f"ImageRNG: next: self.shape {self.shape}, generator {generator}")
             x = randn_without_seed(self.shape, generator=generator)
             xs.append(x)
 
