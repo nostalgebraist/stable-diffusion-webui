@@ -141,8 +141,8 @@ class Script(scripts.Script):
             else:
                 prompts.append(prompts)
 
-        for pix in range(0, len(prompts), args.batch_size):
-            args = {"prompt": prompts[pix : pix + args.batch_size]}
+        for pix in range(0, len(prompts), p.batch_size):
+            args = {"prompt": prompts[pix : pix + p.batch_size]}
 
             job_count += args.get("n_iter", p.n_iter)
 
