@@ -123,7 +123,7 @@ class Script(scripts.Script):
     def run(self, p, checkbox_iterate, checkbox_iterate_batch, prompt_txt: str):
         lines = [x for x in (x.strip() for x in prompt_txt.splitlines()) if x]
 
-        p.do_not_save_grid = True
+        p.do_not_save_grid = len(lines) > 8
 
         job_count = 0
         jobs = []
