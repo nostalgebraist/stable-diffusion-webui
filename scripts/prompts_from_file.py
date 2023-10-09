@@ -144,6 +144,9 @@ class Script(scripts.Script):
         for pix in range(0, len(prompts), p.batch_size):
             args = {"prompt": prompts[pix : pix + p.batch_size]}
 
+            if checkbox_iterate_batch:
+                args["seed"] = [p.seed] * len(args["prompt"])
+
             job_count += args.get("n_iter", p.n_iter)
 
             jobs.append(args)
