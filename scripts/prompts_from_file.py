@@ -127,16 +127,22 @@ class Script(scripts.Script):
 
         job_count = 0
         jobs = []
+        prompts = []
 
         for line in lines:
             if "--" in line:
                 try:
                     args = cmdargs(line)
+                    if args.batch_size > 1:
+                        raise ValueError('bs>1 not supported for args prompts')
                 except Exception:
                     errors.report(f"Error parsing line {line} as commandline", exc_info=True)
                     args = {"prompt": line}
             else:
-                args = {"prompt": line}
+                prompts.append(prompts)
+
+        for pix in range(0, len(prompts), args.batch_size):
+            args = {"prompt": prompts[pix : pix + args.batch_size]}
 
             job_count += args.get("n_iter", p.n_iter)
 
