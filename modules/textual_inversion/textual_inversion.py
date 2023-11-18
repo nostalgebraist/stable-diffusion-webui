@@ -53,14 +53,23 @@ class Embedding:
         self.shorthash = None
 
     def save(self, filename):
-        embedding_data = {
-            "string_to_token": {"*": 265},
-            "string_to_param": {"*": self.vec},
-            "name": self.name,
-            "step": self.step,
-            "sd_checkpoint": self.sd_checkpoint,
-            "sd_checkpoint_name": self.sd_checkpoint_name,
-        }
+        if isinstance(self.vec, dict):
+            # sdxl
+            embedding_data = self.vec | {
+                "name": self.name,
+                "step": self.step,
+                "sd_checkpoint": self.sd_checkpoint,
+                "sd_checkpoint_name": self.sd_checkpoint_name,
+            }
+        else:
+            embedding_data = {
+                "string_to_token": {"*": 265},
+                "string_to_param": {"*": self.vec},
+                "name": self.name,
+                "step": self.step,
+                "sd_checkpoint": self.sd_checkpoint,
+                "sd_checkpoint_name": self.sd_checkpoint_name,
+            }
 
         torch.save(embedding_data, filename)
 
