@@ -20,6 +20,8 @@ from modules.textual_inversion.learn_schedule import LearnRateScheduler
 from modules.textual_inversion.image_embedding import embedding_to_b64, embedding_from_b64, insert_image_data_embed, extract_image_data_embed, caption_image_overlay
 from modules.textual_inversion.logging import save_settings_to_file
 
+import sgm.modules.diffusionmodules.loss
+import sgm.modules.diffusionmodules.sigma_sampling
 
 TextualInversionTemplate = namedtuple("TextualInversionTemplate", ["name", "path"])
 textual_inversion_templates = {}
@@ -556,6 +558,17 @@ def train_embedding(id_task, embedding_name, learn_rate, batch_size, gradient_st
                         cond = {"c_concat": [img_c], "c_crossattn": [c]}
                     else:
                         cond = c
+
+                    if shared.sd_model.loss_fn is None:
+                        shared.sd_model.loss_fn = sgm.modules.diffusionmodules.loss.StandardDiffusionLoss(
+                            sigma_sampler_config={
+                                'target': 'sgm.modules.diffusionmodules.sigma_sampling.DiscreteSampling',
+                                'num_idx': 1000,
+                                'discretization_config': {
+                                    'target': 'sgm.modules.diffusionmodules.discretizer.LegacyDDPMDiscretization'
+                                }
+                            }
+                            )
 
                     if use_weight:
                         loss = shared.sd_model.weighted_forward(x, cond, w)[0] / gradient_step
