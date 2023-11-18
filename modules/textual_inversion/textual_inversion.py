@@ -293,12 +293,25 @@ def create_embedding(name, num_vectors_per_token, overwrite_old, init_text='*'):
 
     #cond_model expects at least some text, so we provide '*' as backup.
     embedded = cond_model.encode_embedding_init_text(init_text or '*', num_vectors_per_token)
-    vec = torch.zeros((num_vectors_per_token, embedded.shape[1]), device=devices.device)
+    if embedded.shape[1] == 2048:
+        # sdxl
+        vec = {
+            'clip_g': torch.zeros((num_vectors_per_token, 1280), device=devices.device),
+            'clip_l': torch.zeros((num_vectors_per_token, 768), device=devices.device),
+        }
+    else:
+        vec = torch.zeros((num_vectors_per_token, embedded.shape[1]), device=devices.device)
 
     #Only copy if we provided an init_text, otherwise keep vectors as zeros
     if init_text:
         for i in range(num_vectors_per_token):
-            vec[i] = embedded[i * int(embedded.shape[0]) // num_vectors_per_token]
+            if isinstance(embedded, dict):
+                emb_g = embedded[:, :1280]
+                emb_l = embedded[:, 1280:]
+                vec['clip_g'][i] = emb_g[i * int(emb_g.shape[0]) // num_vectors_per_token]
+                vec['clip_l'][i] = emb_l[i * int(emb_l.shape[0]) // num_vectors_per_token]
+            else:
+                vec[i] = embedded[i * int(embedded.shape[0]) // num_vectors_per_token]
 
     # Remove illegal characters from name.
     name = "".join( x for x in name if (x.isalnum() or x in "._- "))
