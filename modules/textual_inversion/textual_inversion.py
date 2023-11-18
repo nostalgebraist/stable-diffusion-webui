@@ -201,7 +201,7 @@ class EmbeddingDatabase:
             shape = vec.shape[-1]
             vectors = vec.shape[0]
         elif type(data) == dict and 'clip_g' in data and 'clip_l' in data:  # SDXL embedding
-            vec = {k: v.detach().to(devices.device, dtype=torch.float32) for k, v in data.items()}
+            vec = {k: data[k].detach().to(devices.device, dtype=torch.float32) for k in ['clip_g', 'clip_l']]}
             shape = data['clip_g'].shape[-1] + data['clip_l'].shape[-1]
             vectors = data['clip_g'].shape[0]
         elif type(data) == dict and type(next(iter(data.values()))) == torch.Tensor: # diffuser concepts
