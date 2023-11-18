@@ -105,7 +105,7 @@ def forward(
     if force_zero_embeddings is None:
         force_zero_embeddings = []
     for embedder in self.embedders:
-        embedding_context = nullcontext if embedder.is_trainable else torch.no_grad
+        embedding_context = nullcontext # if embedder.is_trainable else torch.no_grad
         with embedding_context():
             if hasattr(embedder, "input_key") and (embedder.input_key is not None):
                 if embedder.legacy_ucg_val is not None:
