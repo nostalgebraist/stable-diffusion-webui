@@ -563,12 +563,14 @@ def train_embedding(id_task, embedding_name, learn_rate, batch_size, gradient_st
                         shared.sd_model.loss_fn = sgm.modules.diffusionmodules.loss.StandardDiffusionLoss(
                             sigma_sampler_config={
                                 'target': 'sgm.modules.diffusionmodules.sigma_sampling.DiscreteSampling',
-                                'num_idx': 1000,
-                                'discretization_config': {
-                                    'target': 'sgm.modules.diffusionmodules.discretizer.LegacyDDPMDiscretization'
+                                'params': {
+                                    'num_idx': 1000,
+                                    'discretization_config': {
+                                        'target': 'sgm.modules.diffusionmodules.discretizer.LegacyDDPMDiscretization'
+                                    }
                                 }
                             }
-                            )
+                        )
 
                     if use_weight:
                         loss = shared.sd_model.weighted_forward(x, cond, w)[0] / gradient_step
