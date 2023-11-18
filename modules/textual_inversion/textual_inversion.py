@@ -314,7 +314,7 @@ def create_embedding(name, num_vectors_per_token, overwrite_old, init_text='*'):
     #Only copy if we provided an init_text, otherwise keep vectors as zeros
     if init_text:
         for i in range(num_vectors_per_token):
-            if isinstance(embedded, dict):
+            if isinstance(vec, dict):
                 emb_g = embedded[:, :1280]
                 emb_l = embedded[:, 1280:]
                 vec['clip_g'][i] = emb_g[i * int(emb_g.shape[0]) // num_vectors_per_token]
