@@ -653,6 +653,7 @@ def train_embedding(id_task, embedding_name, learn_rate, batch_size, gradient_st
                     else:
                         p.prompt = batch.cond_text[0]
                         p.steps = 20
+                        p.cfg_scale = 3.5
                         p.width = training_width
                         p.height = training_height
 
