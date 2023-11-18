@@ -329,8 +329,10 @@ class EmbeddingsWithFixes(torch.nn.Module):
         for fixes, tensor in zip(batch_fixes, inputs_embeds):
             for offset, embedding in fixes:
                 vec = embedding.vec[self.textual_inversion_key] if isinstance(embedding.vec, dict) else embedding.vec
-                if not vec.requires_grad:
+                if vec.requires_grad:
                     # if vec.requires_grad then we're autocasting
+                    emb = vec
+                else:
                     emb = devices.cond_cast_unet(vec)
                 emb_len = min(tensor.shape[0] - offset - 1, emb.shape[0])
 
