@@ -654,8 +654,10 @@ def train_embedding(id_task, embedding_name, learn_rate, batch_size, gradient_st
                         p.width = preview_width
                         p.height = preview_height
                     else:
+                        p.seed = 6546554
                         p.prompt = batch.cond_text[0] or pinned_prompt
                         pinned_prompt = p.prompt
+
                         p.steps = 20
                         p.cfg_scale = 3.5
                         p.width = training_width
