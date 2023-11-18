@@ -527,6 +527,7 @@ def train_embedding(id_task, embedding_name, learn_rate, batch_size, gradient_st
     img_c = None
 
     print(f"shared.sd_model.scale_factor: {getattr(shared.sd_model, 'scale_factor', None)}")
+    pinned_prompt = None
 
     pbar = tqdm.tqdm(total=steps - initial_step)
     try:
@@ -653,7 +654,8 @@ def train_embedding(id_task, embedding_name, learn_rate, batch_size, gradient_st
                         p.width = preview_width
                         p.height = preview_height
                     else:
-                        p.prompt = batch.cond_text[0]
+                        p.prompt = batch.cond_text[0] or pinned_prompt
+                        pinned_prompt = p.prompt
                         p.steps = 20
                         p.cfg_scale = 3.5
                         p.width = training_width
