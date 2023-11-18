@@ -526,7 +526,7 @@ def train_embedding(id_task, embedding_name, learn_rate, batch_size, gradient_st
     is_training_inpainting_model = shared.sd_model.model.conditioning_key in {'hybrid', 'concat'}
     img_c = None
 
-    print(f"shared.sd_model.conditioner.scale_factor: {getattr(shared.sd_model.conditioner, 'scale_factor', None)}")
+    print(f"shared.sd_model.scale_factor: {getattr(shared.sd_model, 'scale_factor', None)}")
 
     pbar = tqdm.tqdm(total=steps - initial_step)
     try:
