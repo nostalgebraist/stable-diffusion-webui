@@ -326,27 +326,33 @@ class EmbeddingsWithFixes(torch.nn.Module):
             return inputs_embeds
 
         vecs = []
-        for fixes, tensor in zip(batch_fixes, inputs_embeds):
-            for offset, embedding in fixes:
-                vec = embedding.vec[self.textual_inversion_key] if isinstance(embedding.vec, dict) else embedding.vec
-                if vec.requires_grad:
-                    # if vec.requires_grad then we're autocasting
-                    emb = vec
-                else:
+        with torch.enable_grad():
+            for fixes, tensor in zip(batch_fixes, inputs_embeds):
+                for offset, embedding in fixes:
+                    vec = embedding.vec[self.textual_inversion_key] if isinstance(embedding.vec, dict) else embedding.vec
                     emb = devices.cond_cast_unet(vec)
-                emb_len = min(tensor.shape[0] - offset - 1, emb.shape[0])
+                    # if vec.requires_grad:
+                    #     # if vec.requires_grad then we're autocasting
+                    #     emb = vec
+                    # else:
+                    #     emb = devices.cond_cast_unet(vec)
+                    emb_len = min(tensor.shape[0] - offset - 1, emb.shape[0])
 
-                tensor.requires_grad = vec.requires_grad
+                    # tensor.requires_grad = vec.requires_grad
 
-                tensor = torch.cat([tensor[0:offset + 1], emb[0:emb_len], tensor[offset + 1 + emb_len:]])
+                    tensor = torch.cat([tensor[0:offset + 1], emb[0:emb_len], tensor[offset + 1 + emb_len:]])
 
-                tensor.requires_grad = vec.requires_grad
+                    # tensor.requires_grad = vec.requires_grad
 
-                print(f"EmbeddingsWithFixes {self.textual_inversion_key}: forward: vec.requires_grad {vec.requires_grad}, vec.shape {vec.shape}, emb.requires_grad {emb.requires_grad}, emb.shape {emb.shape}, tensor.requires_grad {tensor.requires_grad}, tensor.shape {tensor.shape}")
+                    print(f"EmbeddingsWithFixes {self.textual_inversion_key}: forward: vec.requires_grad {vec.requires_grad}, vec.shape {vec.shape}, emb.requires_grad {emb.requires_grad}, emb.shape {emb.shape}, tensor.requires_grad {tensor.requires_grad}, tensor.shape {tensor.shape}")
 
-            vecs.append(tensor)
+                vecs.append(tensor)
+            
+            out = torch.stack(vecs)
 
-        return torch.stack(vecs)
+            print(f"EmbeddingsWithFixes {self.textual_inversion_key}: forward: out.requires_grad {out.requires_grad}, out.shape {out.shape}")
+
+            return out
 
 
 def add_circular_option_to_conv_2d():
