@@ -162,6 +162,9 @@ class FrozenCLIPEmbedderWithCustomWordsBase(torch.nn.Module):
                     continue
 
                 emb_len = int(embedding.vectors)
+
+                print(f"tokenize_line: found emb: {len(chunk.tokens)}, {emb_len}, {self.chunk_length}")
+
                 if len(chunk.tokens) + emb_len > self.chunk_length:
                     next_chunk()
 

@@ -315,12 +315,14 @@ class EmbeddingsWithFixes(torch.nn.Module):
         self.textual_inversion_key = textual_inversion_key
 
     def forward(self, input_ids):
+        print(f"EmbeddingsWithFixes {self.textual_inversion_key}: forward: self.embeddings.fixes {self.embeddings.fixes}")
         batch_fixes = self.embeddings.fixes
         self.embeddings.fixes = None
 
         inputs_embeds = self.wrapped(input_ids)
 
         if batch_fixes is None or len(batch_fixes) == 0 or max([len(x) for x in batch_fixes]) == 0:
+            print(f"EmbeddingsWithFixes {self.textual_inversion_key}: forward: bail with {batch_fixes}")
             return inputs_embeds
 
         vecs = []
@@ -330,6 +332,8 @@ class EmbeddingsWithFixes(torch.nn.Module):
                 emb = devices.cond_cast_unet(vec)
                 emb_len = min(tensor.shape[0] - offset - 1, emb.shape[0])
                 tensor = torch.cat([tensor[0:offset + 1], emb[0:emb_len], tensor[offset + 1 + emb_len:]])
+
+                print(f"EmbeddingsWithFixes {self.textual_inversion_key}: forward: vec.requires_grad {vec.requires_grad}, vec.shape {vec.shape}, emb.requires_grad {emb.requires_grad}, emb.shape {emb.shape}, tensor.requires_grad {tensor.requires_grad}, tensor.shape {tensor.shape}")
 
             vecs.append(tensor)
 
