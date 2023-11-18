@@ -554,7 +554,8 @@ def train_embedding(id_task, embedding_name, learn_rate, batch_size, gradient_st
                         w = batch.weight.to(devices.device, non_blocking=pin_memory)
                     if is_sdxl:
                         print(type(batch.cond_text))
-                        c = [batch.cond_text] if not isinstance(batch.cond_text, str) else batch.cond_text
+                        print(batch.cond_text)
+                        c = [batch.cond_text] if isinstance(batch.cond_text, str) else batch.cond_text
                     else:
                         c = shared.sd_model.cond_stage_model(batch.cond_text)
 
