@@ -2,9 +2,13 @@ from __future__ import annotations
 
 import torch
 
+from contextlib import nullcontext
+from typing import Dict, List, Optional
+
 import sgm.models.diffusion
 import sgm.modules.diffusionmodules.denoiser_scaling
 import sgm.modules.diffusionmodules.discretizer
+from sgm.util import expand_dims_like
 from modules import devices, shared, prompt_parser
 
 
@@ -74,11 +78,61 @@ def get_target_prompt_token_count(self, token_count):
         return embedder.get_target_prompt_token_count(token_count)
 
 
+def forward(
+    self, batch: Dict, force_zero_embeddings: Optional[List] = None
+) -> Dict:
+    if not isinstance(batch, dict):
+        batch = {'txt': batch}
+    output = dict()
+    if force_zero_embeddings is None:
+        force_zero_embeddings = []
+    for embedder in self.embedders:
+        embedding_context = nullcontext if embedder.is_trainable else torch.no_grad
+        with embedding_context():
+            if hasattr(embedder, "input_key") and (embedder.input_key is not None):
+                if embedder.legacy_ucg_val is not None:
+                    batch = self.possibly_get_ucg_val(embedder, batch)
+                emb_out = embedder(batch[embedder.input_key])
+            elif hasattr(embedder, "input_keys"):
+                emb_out = embedder(*[batch[k] for k in embedder.input_keys])
+        assert isinstance(
+            emb_out, (torch.Tensor, list, tuple)
+        ), f"encoder outputs must be tensors or a sequence, but got {type(emb_out)}"
+        if not isinstance(emb_out, (list, tuple)):
+            emb_out = [emb_out]
+        for emb in emb_out:
+            out_key = self.OUTPUT_DIM2KEYS[emb.dim()]
+            if embedder.ucg_rate > 0.0 and embedder.legacy_ucg_val is None:
+                emb = (
+                    expand_dims_like(
+                        torch.bernoulli(
+                            (1.0 - embedder.ucg_rate)
+                            * torch.ones(emb.shape[0], device=emb.device)
+                        ),
+                        emb,
+                    )
+                    * emb
+                )
+            if (
+                hasattr(embedder, "input_key")
+                and embedder.input_key in force_zero_embeddings
+            ):
+                emb = torch.zeros_like(emb)
+            if out_key in output:
+                output[out_key] = torch.cat(
+                    (output[out_key], emb), self.KEY2CATDIM[out_key]
+                )
+            else:
+                output[out_key] = emb
+    return output
+
+
 # those additions to GeneralConditioner make it possible to use it as model.cond_stage_model from SD1.5 in exist
 sgm.modules.GeneralConditioner.encode_embedding_init_text = encode_embedding_init_text
 sgm.modules.GeneralConditioner.tokenize = tokenize
 sgm.modules.GeneralConditioner.process_texts = process_texts
 sgm.modules.GeneralConditioner.get_target_prompt_token_count = get_target_prompt_token_count
+sgm.modules.GeneralConditioner.forward = forward
 
 
 def extend_sdxl(model):
