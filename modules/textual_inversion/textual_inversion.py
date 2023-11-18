@@ -590,9 +590,9 @@ def train_embedding(id_task, embedding_name, learn_rate, batch_size, gradient_st
                     _loss_step += loss.item()
                 scaler.scale(loss).backward()
 
-                if is_sdxl:
-                    for k in embedding.vec:
-                        print(f"{k} grad: {type(embedding.vec[k].grad)}")
+                # if is_sdxl:
+                #     for k in embedding.vec:
+                #         print(f"{k} grad: {type(embedding.vec[k].grad)}")
 
                 # go back until we reach gradient accumulation steps
                 if (j + 1) % gradient_step != 0:
