@@ -340,6 +340,8 @@ class EmbeddingsWithFixes(torch.nn.Module):
 
                 tensor = torch.cat([tensor[0:offset + 1], emb[0:emb_len], tensor[offset + 1 + emb_len:]])
 
+                tensor.requires_grad = vec.requires_grad
+
                 print(f"EmbeddingsWithFixes {self.textual_inversion_key}: forward: vec.requires_grad {vec.requires_grad}, vec.shape {vec.shape}, emb.requires_grad {emb.requires_grad}, emb.shape {emb.shape}, tensor.requires_grad {tensor.requires_grad}, tensor.shape {tensor.shape}")
 
             vecs.append(tensor)
