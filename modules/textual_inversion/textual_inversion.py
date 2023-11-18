@@ -484,8 +484,11 @@ def train_embedding(id_task, embedding_name, learn_rate, batch_size, gradient_st
         shared.parallel_processing_allowed = False
         shared.sd_model.first_stage_model.to(devices.cpu)
 
+    is_sdxl = False
+
     if isinstance(embedding.vec, dict):
         # sdxl
+        is_sdxl = True
         embedding.vec['clip_g'].requires_grad = True
         embedding.vec['clip_l'].requires_grad = True
         optimizer = torch.optim.AdamW([embedding.vec['clip_g'], embedding.vec['clip_l']], lr=scheduler.learn_rate, weight_decay=0.0)
@@ -549,7 +552,11 @@ def train_embedding(id_task, embedding_name, learn_rate, batch_size, gradient_st
                     x = batch.latent_sample.to(devices.device, non_blocking=pin_memory)
                     if use_weight:
                         w = batch.weight.to(devices.device, non_blocking=pin_memory)
-                    c = shared.sd_model.cond_stage_model(batch.cond_text)
+                    if is_sdxl:
+                        print(type(batch.cond_text))
+                        c = [batch.cond_text] if not isinstance(batch.cond_text, str) else batch.cond_text
+                    else:
+                        c = shared.sd_model.cond_stage_model(batch.cond_text)
 
                     if is_training_inpainting_model:
                         if img_c is None:
@@ -559,7 +566,7 @@ def train_embedding(id_task, embedding_name, learn_rate, batch_size, gradient_st
                     else:
                         cond = c
 
-                    if shared.sd_model.loss_fn is None:
+                    if is_sdxl and shared.sd_model.loss_fn is None:
                         shared.sd_model.loss_fn = sgm.modules.diffusionmodules.loss.StandardDiffusionLoss(
                             sigma_sampler_config={
                                 'target': 'sgm.modules.diffusionmodules.sigma_sampling.DiscreteSampling',
