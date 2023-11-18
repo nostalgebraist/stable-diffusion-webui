@@ -315,14 +315,14 @@ class EmbeddingsWithFixes(torch.nn.Module):
         self.textual_inversion_key = textual_inversion_key
 
     def forward(self, input_ids):
-        print(f"EmbeddingsWithFixes {self.textual_inversion_key}: forward: self.embeddings.fixes {self.embeddings.fixes}")
+        # print(f"EmbeddingsWithFixes {self.textual_inversion_key}: forward: self.embeddings.fixes {self.embeddings.fixes}")
         batch_fixes = self.embeddings.fixes
         self.embeddings.fixes = None
 
         inputs_embeds = self.wrapped(input_ids)
 
         if batch_fixes is None or len(batch_fixes) == 0 or max([len(x) for x in batch_fixes]) == 0:
-            print(f"EmbeddingsWithFixes {self.textual_inversion_key}: forward: bail with {batch_fixes}")
+            # print(f"EmbeddingsWithFixes {self.textual_inversion_key}: forward: bail with {batch_fixes}")
             return inputs_embeds
 
         vecs = []
@@ -344,13 +344,13 @@ class EmbeddingsWithFixes(torch.nn.Module):
 
                 # tensor.requires_grad = vec.requires_grad
 
-                print(f"EmbeddingsWithFixes {self.textual_inversion_key}: forward: vec.requires_grad {vec.requires_grad}, vec.shape {vec.shape}, emb.requires_grad {emb.requires_grad}, emb.shape {emb.shape}, tensor.requires_grad {tensor.requires_grad}, tensor.shape {tensor.shape}")
+                # print(f"EmbeddingsWithFixes {self.textual_inversion_key}: forward: vec.requires_grad {vec.requires_grad}, vec.shape {vec.shape}, emb.requires_grad {emb.requires_grad}, emb.shape {emb.shape}, tensor.requires_grad {tensor.requires_grad}, tensor.shape {tensor.shape}")
 
             vecs.append(tensor)
         
         out = torch.stack(vecs)
 
-        print(f"EmbeddingsWithFixes {self.textual_inversion_key}: forward: out.requires_grad {out.requires_grad}, out.shape {out.shape}")
+        # print(f"EmbeddingsWithFixes {self.textual_inversion_key}: forward: out.requires_grad {out.requires_grad}, out.shape {out.shape}")
 
         return out
 
