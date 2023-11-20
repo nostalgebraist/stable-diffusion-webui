@@ -13,7 +13,7 @@ import numpy as np
 from PIL import Image, PngImagePlugin
 from torch.utils.tensorboard import SummaryWriter
 
-from modules import shared, devices, sd_hijack, sd_models, images, sd_samplers, sd_hijack_checkpoint, errors, hashes
+from modules import shared, devices, sd_hijack, sd_models, images, sd_samplers, sd_hijack_checkpoint, errors, hashes, prompt_parser
 import modules.textual_inversion.dataset
 from modules.textual_inversion.learn_schedule import LearnRateScheduler
 
@@ -559,6 +559,7 @@ def train_embedding(id_task, embedding_name, learn_rate, batch_size, gradient_st
                         # print(type(batch.cond_text))
                         # print(batch.cond_text)
                         c = [batch.cond_text] if isinstance(batch.cond_text, str) else batch.cond_text
+                        c = prompt_parser.SdConditioning(c, width=training_width, height=training_width)
                     else:
                         c = shared.sd_model.cond_stage_model(batch.cond_text)
 
