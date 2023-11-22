@@ -491,10 +491,10 @@ def train_embedding(id_task, embedding_name, learn_rate, batch_size, gradient_st
         is_sdxl = True
         embedding.vec['clip_g'].requires_grad = True
         embedding.vec['clip_l'].requires_grad = True
-        optimizer = torch.optim.AdamW([embedding.vec['clip_g'], embedding.vec['clip_l']], lr=scheduler.learn_rate, weight_decay=0.0)
+        optimizer = torch.optim.AdamW([embedding.vec['clip_g'], embedding.vec['clip_l']], lr=scheduler.learn_rate, weight_decay=0.1)
     else:
         embedding.vec.requires_grad = True
-        optimizer = torch.optim.AdamW([embedding.vec], lr=scheduler.learn_rate, weight_decay=0.0)
+        optimizer = torch.optim.AdamW([embedding.vec], lr=scheduler.learn_rate, weight_decay=0.1)
     if shared.opts.save_optimizer_state:
         optimizer_state_dict = None
         if os.path.exists(f"{filename}.optim"):
