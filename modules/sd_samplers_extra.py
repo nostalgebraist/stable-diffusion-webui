@@ -14,7 +14,7 @@ def restart_sampler(model, x, sigmas, extra_args=None, callback=None, disable=No
     step_id = 0
     from k_diffusion.sampling import to_d, get_sigmas_karras
 
-    def heun_step(x, old_sigma, new_sigma, second_order=True):
+    def heun_step(x, old_sigma, new_sigma, second_order=False):
         nonlocal step_id
         denoised = model(x, old_sigma * s_in, **extra_args)
         d = to_d(x, old_sigma, denoised)
